@@ -1,0 +1,39 @@
+#!/usr/bin/python
+
+import argparse
+import dbm
+import os
+import sys
+
+PARSER = argparse.ArgumentParser(description='Stores and returns strings')
+PARSER.add_argument('key', type=str, nargs='?')
+PARSER.add_argument('value', type=str, nargs='?')
+PARSER.add_argument('--set', '-s',  action='store_true', help='set the mapping')
+
+def main():
+    args = PARSER.parse_args()
+
+    if args.value is None and args.set:
+        value = sys.stdin.read().strip()
+    else:
+        value = args.value
+
+    DATA_DIR = os.path.join(os.environ['HOME'], '.cli-alias')
+    DATA_FILE = os.path.join(DATA_DIR, 'dict.dbm')
+
+    if not os.path.isdir(DATA_DIR):
+        os.mkdir(DATA_DIR)
+
+    mapping = dbm.open(DATA_FILE, 'c')
+
+    if not args.key:
+        for key in mapping.keys():
+            print key
+    elif not value:
+        print mapping.get(args.key, '')
+    else:
+        mapping[args.key] = value
+
+
+if __name__ == '__main__':
+	main()
